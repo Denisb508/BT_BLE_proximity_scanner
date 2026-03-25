@@ -16,6 +16,30 @@ except Exception:  # pragma: no cover
 
 from bleak import BleakScanner
 
+try:
+    from scanner_bt_classic import scan_bt_classic
+except Exception:  # pragma: no cover
+    def scan_bt_classic():
+        return []
+
+try:
+    from fingerprint_engine_v2 import calculate_score as external_calculate_score
+except Exception:  # pragma: no cover
+    external_calculate_score = None
+
+try:
+    from auto_learn import track_device, get_suggestions
+except Exception:  # pragma: no cover
+    def track_device(device):
+        return None
+    def get_suggestions(min_seen=10):
+        return []
+
+try:
+    import web_dashboard
+except Exception:  # pragma: no cover
+    web_dashboard = None
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 CONFIG_DIR = os.path.join(ROOT_DIR, "config")
@@ -107,6 +131,13 @@ DEFAULT_CONFIG = {
     "show_unknown_devices": True,
     "tx_power": -59,
     "distance_exponent": 2.2,
+    "enable_bt_classic": True,
+    "classic_scan_interval_sec": 8,
+    "auto_learn": True,
+    "auto_learn_min_seen": 10,
+    "web_dashboard": True,
+    "web_host": "127.0.0.1",
+    "web_port": 5000,
 }
 
 DEFAULT_TARGETS = {
@@ -421,6 +452,13 @@ def score_target(target, dev):
         score += 10
         reasons.append("repeat")
 
+if external_calculate_score:
+    try:
+        score += int(external_calculate_score(dev, target))
+        reasons.append("fingerprint_v2")
+    except Exception:
+        logging.exception("external_calculate_score failed")
+
     return {
         "label": label,
         "score": score,
@@ -450,6 +488,8 @@ def beep_once(freq, ms):
 def detection_callback(device, advertisement_data):
     now = time.time()
     record = make_device_record(device, advertisement_data, now)
+    if CONFIG.get("auto_learn", True):
+        track_device(record)
     address = record["address"]
     with devices_lock:
         if address not in devices:
@@ -622,6 +662,54 @@ devices = {}
 presence_state = {}
 
 
+
+def update_web_dashboard_snapshot(target_rows=None):
+    if not web_dashboard or not CONFIG.get("web_dashboard", True):
+        return
+    try:
+        with devices_lock:
+            web_dashboard.current_devices = sorted(
+                [dict(v) for v in devices.values()],
+                key=lambda x: (x.get("last_seen", 0), x.get("name", "")),
+                reverse=True,
+            )[:200]
+        web_dashboard.targets_status = target_rows or []
+    except Exception:
+        logging.exception("Failed updating web dashboard snapshot")
+
+
+def bt_classic_loop():
+    enqueue_status("BT Classic scanner thread starting...")
+    interval = float(CONFIG.get("classic_scan_interval_sec", 8))
+    while not stop_event.is_set():
+        try:
+            now = time.time()
+            found = scan_bt_classic() or []
+            with devices_lock:
+                for idx, dev in enumerate(found):
+                    name = (dev.get("name") or f"ClassicDevice{idx}").strip()
+                    address = normalize_mac(dev.get("address") or f"CLASSIC:{name}")
+                    record = {
+                        "name": name,
+                        "brand": dev.get("manufacturer") or "Unknown",
+                        "type": dev.get("device_type") or "Classic Device",
+                        "confidence": "Medium",
+                        "address": address,
+                        "rssi": dev.get("rssi"),
+                        "last_seen": now,
+                        "first_seen": devices.get(address, {}).get("first_seen", now),
+                        "seen_count": devices.get(address, {}).get("seen_count", 0) + 1,
+                        "service_uuids": [],
+                        "manufacturer_ids": [],
+                        "source": "BT Classic",
+                    }
+                    devices[address] = record
+                    if CONFIG.get("auto_learn", True):
+                        track_device(record)
+        except Exception:
+            logging.exception("BT Classic scan failed")
+        time.sleep(interval)
+
 class BLEApp:
     def __init__(self, root):
         self.root = root
@@ -648,10 +736,15 @@ class BLEApp:
         ttk.Button(controls, text="Save selected as known", command=self.save_selected_as_known).pack(side="left", padx=(8, 0))
         ttk.Button(controls, text="Save selected as target", command=self.save_selected_as_target).pack(side="left", padx=(8, 0))
         ttk.Button(controls, text="Export selected JSON", command=self.export_selected_json).pack(side="left", padx=(8, 0))
+        ttk.Button(controls, text="Refresh auto-learn", command=self.refresh_suggestions).pack(side="left", padx=(8, 0))
 
         self.status_var = tk.StringVar(value="Starting BLE scanner...")
         self.target_var = tk.StringVar(value="No target selected")
-        ttk.Label(root, textvariable=self.status_var, padding=(10, 0, 10, 8)).pack(anchor="w")
+        self.dashboard_var = tk.StringVar(value=f"Dashboard: http://{CONFIG.get('web_host', '127.0.0.1')}:{CONFIG.get('web_port', 5000)}")
+        self.learn_var = tk.StringVar(value="Auto-learn: waiting for devices...")
+        ttk.Label(root, textvariable=self.status_var, padding=(10, 0, 10, 4)).pack(anchor="w")
+        ttk.Label(root, textvariable=self.dashboard_var, padding=(10, 0, 10, 4), foreground="gray").pack(anchor="w")
+        ttk.Label(root, textvariable=self.learn_var, padding=(10, 0, 10, 8), foreground="gray").pack(anchor="w")
 
         targets_box = ttk.LabelFrame(root, text="Target Profiles / Presence Engine", padding=10)
         targets_box.pack(fill="x", padx=10, pady=(0, 8))
@@ -979,7 +1072,27 @@ class BLEApp:
     def auto_refresh(self):
         self.refresh_tree()
         self.refresh_target_tree()
+        self.refresh_suggestions()
+        rows = []
+        for item in self.target_tree.get_children():
+            values = self.target_tree.item(item, "values")
+            rows.append({
+                "label": values[0], "status": values[1], "score": values[2],
+                "score_present": values[3], "device": values[4], "rssi": values[5],
+                "last_seen": values[6], "reasons": values[7],
+            })
+        update_web_dashboard_snapshot(rows)
         self.root.after(int(CONFIG.get("refresh_ms", 1000)), self.auto_refresh)
+
+
+def refresh_suggestions(self):
+    suggestions = get_suggestions(int(CONFIG.get("auto_learn_min_seen", 10)))
+    if not suggestions:
+        self.learn_var.set("Auto-learn: no suggestions yet.")
+        return
+    top = sorted(suggestions, key=lambda x: x.get("seen", 0), reverse=True)[:5]
+    text = " | ".join(f"{item['name']} ({item['seen']})" for item in top)
+    self.learn_var.set("Auto-learn suggestions: " + text)
 
     def on_close(self):
         logging.info("Application closing")
@@ -989,10 +1102,26 @@ class BLEApp:
 
 def main():
     logging.info("Application startup")
+    if web_dashboard and CONFIG.get("web_dashboard", True):
+        try:
+            threading.Thread(
+                target=lambda: web_dashboard.app.run(
+                    host=CONFIG.get("web_host", "127.0.0.1"),
+                    port=int(CONFIG.get("web_port", 5000)),
+                    debug=False,
+                    use_reloader=False,
+                ),
+                daemon=True,
+            ).start()
+            logging.info("Web dashboard started")
+        except Exception:
+            logging.exception("Failed to start web dashboard")
     root = tk.Tk()
     BLEApp(root)
     ble_thread = threading.Thread(target=run_ble_thread, daemon=True)
     ble_thread.start()
+    if CONFIG.get("enable_bt_classic", True):
+        threading.Thread(target=bt_classic_loop, daemon=True).start()
     root.mainloop()
 
 

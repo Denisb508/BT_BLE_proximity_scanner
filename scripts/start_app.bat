@@ -1,4 +1,5 @@
 @echo off
 cd /d %~dp0\..
-python app\main.py
+if exist venv\Scripts\activate.bat call venv\Scripts\activate.bat
+python app\ble_gui_proximity_offline.py
 pause

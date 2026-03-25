@@ -1,21 +1,22 @@
 def calculate_score(device, target):
     score = 0
-    name = device.get("name","")
-    rssi = device.get("rssi",-100)
-    manufacturer = device.get("manufacturer","")
+    name = (device.get("name") or "").lower()
+    manufacturer = (device.get("brand") or device.get("manufacturer") or "").lower()
+    rssi = device.get("rssi", -100)
 
-    for n in target.get("ble_names",[]):
-        if n.lower() in name.lower():
-            score += 20
+    for candidate in target.get("ble_names", []):
+        if candidate and candidate.lower() in name:
+            score += 10
 
-    for m in target.get("ble_manufacturers",[]):
-        if m.lower() in manufacturer.lower():
-            score += 25
+    for candidate in target.get("ble_manufacturers", []):
+        if candidate and candidate.lower() in manufacturer:
+            score += 10
 
-    if rssi >= target.get("min_rssi",-80):
-        score += 20
+    if device.get("source") == "BT Classic":
+        score += 10
 
-    if device.get("type") == "classic":
-        score += 30
+    min_rssi = target.get("min_rssi")
+    if isinstance(rssi, (int, float)) and isinstance(min_rssi, (int, float)) and rssi >= min_rssi:
+        score += 5
 
     return score
