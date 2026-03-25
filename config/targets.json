@@ -1,0 +1,15 @@
+{
+  "targets": [
+    {
+      "label": "MyPhone",
+      "enabled": true,
+      "classic_macs": [],
+      "ble_names": ["iPhone", "Galaxy", "Redmi"],
+      "ble_manufacturers": ["Apple", "Samsung", "Xiaomi"],
+      "service_uuids": [],
+      "min_rssi": -75,
+      "score_present": 60,
+      "notes": "Example target profile. Replace with your own device fingerprint."
+    }
+  ]
+}

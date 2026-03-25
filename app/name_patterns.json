@@ -1,0 +1,216 @@
+[
+  {
+    "contains": [
+      "airpods",
+      "airpods pro",
+      "airpods max"
+    ],
+    "brand": "Apple",
+    "type": "AirPods-like",
+    "priority": 100
+  },
+  {
+    "contains": [
+      "iphone"
+    ],
+    "brand": "Apple",
+    "type": "Phone",
+    "priority": 95
+  },
+  {
+    "contains": [
+      "ipad"
+    ],
+    "brand": "Apple",
+    "type": "Tablet",
+    "priority": 95
+  },
+  {
+    "contains": [
+      "apple watch",
+      "watch6,",
+      "watch5,",
+      "watch4,",
+      "watch3,",
+      "watch2,",
+      "watch1,"
+    ],
+    "brand": "Apple",
+    "type": "Watch",
+    "priority": 98
+  },
+  {
+    "contains": [
+      "airtag"
+    ],
+    "brand": "Apple",
+    "type": "Tag",
+    "priority": 98
+  },
+  {
+    "contains": [
+      "galaxy buds",
+      "buds live",
+      "buds2",
+      "buds pro"
+    ],
+    "brand": "Samsung",
+    "type": "Earbuds/Audio",
+    "priority": 95
+  },
+  {
+    "contains": [
+      "galaxy watch",
+      "sm-r8",
+      "sm-r9",
+      "gear s",
+      "gear fit"
+    ],
+    "brand": "Samsung",
+    "type": "Watch",
+    "priority": 96
+  },
+  {
+    "contains": [
+      "galaxy",
+      "samsung"
+    ],
+    "brand": "Samsung",
+    "type": "Phone",
+    "priority": 80
+  },
+  {
+    "contains": [
+      "pixel watch"
+    ],
+    "brand": "Google",
+    "type": "Watch",
+    "priority": 90
+  },
+  {
+    "contains": [
+      "pixel"
+    ],
+    "brand": "Google",
+    "type": "Phone",
+    "priority": 80
+  },
+  {
+    "contains": [
+      "garmin",
+      "fenix",
+      "forerunner",
+      "venu",
+      "vivomove",
+      "vivoactive",
+      "epix",
+      "instinct",
+      "descent",
+      "marq",
+      "approach"
+    ],
+    "brand": "Garmin",
+    "type": "Watch/Band",
+    "priority": 92
+  },
+  {
+    "contains": [
+      "fitbit",
+      "versa",
+      "sense",
+      "charge",
+      "inspire",
+      "luxe",
+      "ionic"
+    ],
+    "brand": "Fitbit",
+    "type": "Watch/Band",
+    "priority": 90
+  },
+  {
+    "contains": [
+      "amazfit",
+      "gtr",
+      "gts",
+      "t-rex",
+      "bip",
+      "cheetah",
+      "falcon"
+    ],
+    "brand": "Amazfit",
+    "type": "Watch/Band",
+    "priority": 90
+  },
+  {
+    "contains": [
+      "mi band",
+      "xiaomi watch",
+      "xiaomi band",
+      "redmi watch",
+      "redmi band"
+    ],
+    "brand": "Xiaomi",
+    "type": "Watch/Band",
+    "priority": 90
+  },
+  {
+    "contains": [
+      "huawei watch",
+      "huawei band",
+      "watch fit",
+      "gt runner",
+      "watch gt",
+      "watch ultimate"
+    ],
+    "brand": "Huawei",
+    "type": "Watch/Band",
+    "priority": 90
+  },
+  {
+    "contains": [
+      "oneplus watch",
+      "opwwe",
+      "opbb"
+    ],
+    "brand": "OnePlus",
+    "type": "Watch",
+    "priority": 88
+  },
+  {
+    "contains": [
+      "ticwatch",
+      "mobvoi"
+    ],
+    "brand": "Mobvoi",
+    "type": "Watch",
+    "priority": 88
+  },
+  {
+    "contains": [
+      "suunto",
+      "polar",
+      "coros"
+    ],
+    "brand": "Sports Watch",
+    "type": "Watch/Band",
+    "priority": 86
+  },
+  {
+    "contains": [
+      "jbl"
+    ],
+    "brand": "JBL",
+    "type": "Audio Device",
+    "priority": 75
+  },
+  {
+    "contains": [
+      "sony",
+      "wf-",
+      "wh-"
+    ],
+    "brand": "Sony",
+    "type": "Audio Device",
+    "priority": 75
+  }
+]

@@ -1,0 +1,58 @@
+{
+  "180a": {
+    "name": "Device Information",
+    "hint_type": "BLE Device"
+  },
+  "180d": {
+    "name": "Heart Rate",
+    "hint_type": "Watch/Band"
+  },
+  "180f": {
+    "name": "Battery Service",
+    "hint_type": "BLE Device"
+  },
+  "1812": {
+    "name": "Human Interface Device",
+    "hint_type": "Input Device"
+  },
+  "1814": {
+    "name": "Running Speed and Cadence",
+    "hint_type": "Watch/Band"
+  },
+  "1816": {
+    "name": "Cycling Speed and Cadence",
+    "hint_type": "Sensor"
+  },
+  "181a": {
+    "name": "Environmental Sensing",
+    "hint_type": "Sensor"
+  },
+  "181b": {
+    "name": "Body Composition",
+    "hint_type": "Watch/Band"
+  },
+  "181c": {
+    "name": "User Data",
+    "hint_type": "Watch/Band"
+  },
+  "181d": {
+    "name": "Weight Scale",
+    "hint_type": "Watch/Band"
+  },
+  "181e": {
+    "name": "Bond Management",
+    "hint_type": "BLE Device"
+  },
+  "181f": {
+    "name": "Continuous Glucose Monitoring",
+    "hint_type": "Health Device"
+  },
+  "1820": {
+    "name": "Internet Protocol Support",
+    "hint_type": "BLE Device"
+  },
+  "1826": {
+    "name": "Fitness Machine",
+    "hint_type": "Watch/Band"
+  }
+}

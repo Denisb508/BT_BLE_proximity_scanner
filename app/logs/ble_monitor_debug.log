@@ -1,0 +1,7 @@
+2026-03-24 15:03:39,545 INFO Application startup
+2026-03-24 15:03:39,857 INFO BLE thread entering asyncio.run
+2026-03-24 15:03:39,857 DEBUG Using proactor: IocpProactor
+2026-03-24 15:03:40,354 INFO BLE scanner started
+2026-03-24 15:03:40,355 DEBUG 0 devices found. Watcher status: <BluetoothLEAdvertisementWatcherStatus.ABORTED: 4>.
+2026-03-24 15:03:46,446 INFO Application closing
+2026-03-24 15:03:46,477 DEBUG skipping waiting for stop because status is <BluetoothLEAdvertisementWatcherStatus.ABORTED: 4>
